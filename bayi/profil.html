@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil & Ayarlar - Bayi Paneli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .profile-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .card-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .info-value {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .discount-highlight {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stats-overview {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .activity-log {
+            background: white;
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #f8f9fa;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .activity-text {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .security-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .security-title {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+
+        .security-item:last-child {
+            border-bottom: none;
+        }
+
+        .security-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-secure {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status-warning {
+            background: #fdf2f2;
+            color: #e74c3c;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .notification.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .notification.error {
+            background: #fdf2f2;
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .info-item {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>👤 Profil & Ayarlar</h1>
+                <div class="header-info">
+                    <span id="dealerName">Bayi</span> - Hesap bilgileri ve güvenlik ayarları
+                </div>
+            </div>
+            <a href="dashboard.html" class="back-btn">← Dashboard</a>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div class="stat-label">Toplam Sipariş</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSpent">₺0</div>
+                    <div class="stat-label">Toplam Alışveriş</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSavings">₺0</div>
+                    <div class="stat-label">Toplam Tasarruf</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="memberSince">-</div>
+                    <div class="stat-label">Üyelik Süresi</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Hesap Bilgileri -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">🏪</span>
+                    <div class="card-title">Hesap Bilgileri</div>
+                </div>
+
+                <div class="notification" id="infoNotification"></div>
+
+                <div class="info-section">
+                    <div class="info-item">
+                        <span class="info-label">Bayi Adı:</span>
+                        <span class="info-value" id="companyName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">İletişim Kişisi:</span>
+                        <span class="info-value" id="contactPerson">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">E-posta:</span>
+                        <span class="info-value" id="emailAddress">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Telefon:</span>
+                        <span class="info-value" id="phoneNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">İskonto Oranı:</span>
+                        <span class="discount-highlight" id="discountRate">0%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Kredi Limiti:</span>
+                        <span class="info-value" id="creditLimit">₺0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hesap Durumu:</span>
+                        <span class="info-value">
+                            <span class="security-status status-secure" id="accountStatus">Aktif</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="security-section">
+                    <div class="security-title">
+                        🔒 Güvenlik Durumu
+                    </div>
+                    <div class="security-item">
+                        <span>Son Giriş:</span>
+                        <span id="lastLogin">-</span>
+                    </div>
+                    <div class="security-item">
+                        <span>Hesap Oluşturma:</span>
+                        <span id="createdAt">-</span>
+                    </div>
+                    <div class="security-item">
+                        <span>Şifre Güvenliği:</span>
+                        <span class="security-status status-secure">Güvenli</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Şifre Değiştirme -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">🔐</span>
+                    <div class="card-title">Şifre Değiştir</div>
+                </div>
+
+                <div class="notification" id="passwordNotification"></div>
+
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Mevcut Şifre *</label>
+                        <div class="password-group">
+                            <input type="password" id="currentPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">👁️</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">Yeni Şifre *</label>
+                        <div class="password-group">
+                            <input type="password" id="newPassword" required minlength="6">
+                            <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">👁️</button>
+                        </div>
+                        <small style="color: #7f8c8d;">En az 6 karakter olmalıdır</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Yeni Şifre Tekrar *</label>
+                        <div class="password-group">
+                            <input type="password" id="confirmPassword" required minlength="6">
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">🔒 Şifreyi Güncelle</button>
+                </form>
+            </div>
+
+            <!-- İletişim Bilgileri Güncelleme -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">📞</span>
+                    <div class="card-title">İletişim Bilgileri</div>
+                </div>
+
+                <div class="notification" id="contactNotification"></div>
+
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="updatePhone">Telefon Numarası</label>
+                        <input type="tel" id="updatePhone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="updateEmail">E-posta Adresi</label>
+                        <input type="email" id="updateEmail">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="updateAddress">Adres</label>
+                        <textarea id="updateAddress" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="updateNotes">Özel Notlar</label>
+                        <textarea id="updateNotes" rows="2" placeholder="Özel talepleriniz veya notlarınız..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">📝 Bilgileri Güncelle</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetContactForm()">🔄 Sıfırla</button>
+                </form>
+            </div>
+
+            <!-- Aktivite Geçmişi -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">📈</span>
+                    <div class="card-title">Son Aktiviteler</div>
+                </div>
+
+                <div class="activity-log" id="activityLog">
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        Aktiviteler yükleniyor...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDealer = null;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadDealerInfo();
+            loadStats();
+            loadActivityLog();
+            setupForms();
+        });
+
+        function checkLoginStatus() {
+            const dealerData = sessionStorage.getItem('currentDealer');
+            if (!dealerData) {
+                alert('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+                window.location.href = 'index.html';
+                return;
+            }
+            currentDealer = JSON.parse(dealerData);
+        }
+
+        function loadDealerInfo() {
+            if (!currentDealer) return;
+
+            document.getElementById('dealerName').textContent = currentDealer.dealerName;
+            document.getElementById('companyName').textContent = currentDealer.dealerName;
+            document.getElementById('contactPerson').textContent = currentDealer.contactPerson;
+            document.getElementById('emailAddress').textContent = currentDealer.email;
+            document.getElementById('phoneNumber').textContent = currentDealer.phone;
+            document.getElementById('discountRate').textContent = currentDealer.discountRate + '%';
+            document.getElementById('creditLimit').textContent = '₺' + (currentDealer.creditLimit || 0).toLocaleString('tr-TR');
+            document.getElementById('lastLogin').textContent = currentDealer.lastLogin || 'İlk giriş';
+            document.getElementById('createdAt').textContent = currentDealer.createdAt || '-';
+
+            // İletişim formunu doldur
+            document.getElementById('updatePhone').value = currentDealer.phone || '';
+            document.getElementById('updateEmail').value = currentDealer.email || '';
+            document.getElementById('updateAddress').value = currentDealer.address || '';
+            document.getElementById('updateNotes').value = currentDealer.notes || '';
+        }
+
+        function loadStats() {
+            if (!currentDealer) return;
+
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const dealerOrders = orders.filter(o => o.dealerId === currentDealer.id);
+            
+            const totalOrders = dealerOrders.length;
+            const totalSpent = dealerOrders.reduce((sum, o) => sum + o.finalTotal, 0);
+            const totalSavings = dealerOrders.reduce((sum, o) => sum + (o.originalTotal - o.finalTotal), 0);
+            
+            // Üyelik süresi hesapla
+            let memberSince = '-';
+            if (currentDealer.createdAt) {
+                const createdDate = new Date(currentDealer.createdAt.split(' ')[0].split('.').reverse().join('-'));
+                const now = new Date();
+                const diffTime = Math.abs(now - createdDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 30) {
+                    memberSince = diffDays + ' gün';
+                } else if (diffDays < 365) {
+                    memberSince = Math.floor(diffDays / 30) + ' ay';
+                } else {
+                    memberSince = Math.floor(diffDays / 365) + ' yıl';
+                }
+            }
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('totalSpent').textContent = '₺' + totalSpent.toLocaleString('tr-TR');
+            document.getElementById('totalSavings').textContent = '₺' + totalSavings.toLocaleString('tr-TR');
+            document.getElementById('memberSince').textContent = memberSince;
+        }
+
+        function loadActivityLog() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const dealerOrders = orders
+                .filter(o => o.dealerId === currentDealer.id)
+                .sort((a, b) => new Date(b.createdAt.split(' ')[0].split('.').reverse().join('-')) - 
+                              new Date(a.createdAt.split(' ')[0].split('.').reverse().join('-')))
+                .slice(0, 10);
+
+            const activityLog = document.getElementById('activityLog');
+            
+            if (dealerOrders.length === 0) {
+                activityLog.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        <h4>📋 Henüz Aktivite Yok</h4>
+                        <p>İlk siparişinizi vererek başlayın!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            activityLog.innerHTML = dealerOrders.map(order => `
+                <div class="activity-item">
+                    <div class="activity-time">${order.createdAt}</div>
+                    <div class="activity-text">
+                        Sipariş #${order.id} ${getStatusText(order.status)} 
+                        (₺${order.finalTotal.toLocaleString('tr-TR')})
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'Beklemede': 'oluşturuldu',
+                'Onaylandı': 'onaylandı',
+                'Hazırlanıyor': 'hazırlanıyor',
+                'Kargoda': 'kargoya verildi',
+                'Teslim Edildi': 'teslim edildi',
+                'İptal Edildi': 'iptal edildi'
+            };
+            return statusMap[status] || status;
+        }
+
+        function setupForms() {
+            // Şifre değiştirme formu
+            document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                changePassword();
+            });
+
+            // İletişim bilgileri formu
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateContactInfo();
+            });
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validasyon
+            if (currentPassword !== currentDealer.password) {
+                showNotification('passwordNotification', 'Mevcut şifre hatalı!', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showNotification('passwordNotification', 'Yeni şifre en az 6 karakter olmalıdır!', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showNotification('passwordNotification', 'Yeni şifreler eşleşmiyor!', 'error');
+                return;
+            }
+
+            if (newPassword === currentPassword) {
+                showNotification('passwordNotification', 'Yeni şifre mevcut şifreden farklı olmalıdır!', 'error');
+                return;
+            }
+
+            // Şifreyi güncelle
+            const dealers = JSON.parse(localStorage.getItem('dealers') || '[]');
+            const dealerIndex = dealers.findIndex(d => d.id === currentDealer.id);
+            
+            if (dealerIndex !== -1) {
+                dealers[dealerIndex].password = newPassword;
+                dealers[dealerIndex].updatedAt = new Date().toLocaleString('tr-TR');
+                localStorage.setItem('dealers', JSON.stringify(dealers));
+                
+                // Session'daki bilgiyi güncelle
+                currentDealer.password = newPassword;
+                sessionStorage.setItem('currentDealer', JSON.stringify(currentDealer));
+                
+                // Aktivite kaydet
+                addActivity('Şifre Değiştirildi', `${currentDealer.dealerName} şifresini değiştirdi`);
+                
+                showNotification('passwordNotification', 'Şifreniz başarıyla güncellendi!', 'success');
+                
+                // Formu temizle
+                document.getElementById('passwordForm').reset();
+            }
+        }
+
+        function updateContactInfo() {
+            const phone = document.getElementById('updatePhone').value;
+            const email = document.getElementById('updateEmail').value;
+            const address = document.getElementById('updateAddress').value;
+            const notes = document.getElementById('updateNotes').value;
+
+            // E-posta validasyonu
+            if (email && !isValidEmail(email)) {
+                showNotification('contactNotification', 'Geçerli bir e-posta adresi girin!', 'error');
+                return;
+            }
+
+            // Bilgileri güncelle
+            const dealers = JSON.parse(localStorage.getItem('dealers') || '[]');
+            const dealerIndex = dealers.findIndex(d => d.id === currentDealer.id);
+            
+            if (dealerIndex !== -1) {
+                if (phone) dealers[dealerIndex].phone = phone;
+                if (email) dealers[dealerIndex].email = email;
+                dealers[dealerIndex].address = address;
+                dealers[dealerIndex].notes = notes;
+                dealers[dealerIndex].updatedAt = new Date().toLocaleString('tr-TR');
+                
+                localStorage.setItem('dealers', JSON.stringify(dealers));
+                
+                // Session'daki bilgiyi güncelle
+                if (phone) currentDealer.phone = phone;
+                if (email) currentDealer.email = email;
+                currentDealer.address = address;
+                currentDealer.notes = notes;
+                sessionStorage.setItem('currentDealer', JSON.stringify(currentDealer));
+                
+                // Sayfadaki bilgileri güncelle
+                loadDealerInfo();
+                
+                // Aktivite kaydet
+                addActivity('İletişim Bilgileri Güncellendi', `${currentDealer.dealerName} iletişim bilgilerini güncelledi`);
+                
+                showNotification('contactNotification', 'İletişim bilgileriniz başarıyla güncellendi!', 'success');
+            }
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        function resetContactForm() {
+            if (confirm('İletişim bilgilerini orijinal değerlere sıfırlamak istediğinizden emin misiniz?')) {
+                loadDealerInfo(); // Orijinal değerleri yükle
+                showNotification('contactNotification', 'Form sıfırlandı.', 'success');
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showNotification(containerId, message, type) {
+            const notification = document.getElementById(containerId);
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        function addActivity(title, description) {
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            activities.push({
+                title: title,
+                description: description,
+                time: new Date().toLocaleString('tr-TR')
+            });
+            
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        // Klavye kısayolları
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                // Hangi form aktifse onu kaydet
+                if (document.activeElement.closest('#passwordForm')) {
+                    document.getElementById('passwordForm').dispatchEvent(new Event('submit'));
+                } else if (document.activeElement.closest('#contactForm')) {
+                    document.getElementById('contactForm').dispatchEvent(new Event('submit'));
+                }
+            }
+            if (e.key === 'Escape') {
+                // Tüm şifre alanlarını gizle
+                document.querySelectorAll('input[type="text"]').forEach(input => {
+                    if (input.id.includes('Password')) {
+                        input.type = 'password';
+                        input.nextElementSibling.textContent = '👁️';
+                    }
+                });
+            }
+        });
+
+        // Gerçek zamanlı şifre kuvvet kontrolü
+        document.getElementById('newPassword').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strength = calculatePasswordStrength(password);
+            
+            // Şifre kuvvet göstergesi (opsiyonel)
+            let strengthText = '';
+            let strengthColor = '';
+            
+            if (password.length === 0) {
+                strengthText = '';
+            } else if (strength < 3) {
+                strengthText = 'Zayıf';
+                strengthColor = '#e74c3c';
+            } else if (strength < 5) {
+                strengthText = 'Orta';
+                strengthColor = '#f39c12';
+            } else {
+                strengthText = 'Güçlü';
+                strengthColor = '#27ae60';
+            }
+            
+            // Şifre kuvvet göstergesini güncelle
+            let strengthIndicator = document.getElementById('passwordStrength');
+            if (!strengthIndicator && strengthText) {
+                strengthIndicator = document.createElement('small');
+                strengthIndicator.id = 'passwordStrength';
+                strengthIndicator.style.cssText = `
+                    display: block;
+                    margin-top: 5px;
+                    font-weight: bold;
+                `;
+                e.target.parentElement.appendChild(strengthIndicator);
+            }
+            
+            if (strengthIndicator) {
+                strengthIndicator.textContent = strengthText ? `Şifre Kuvveti: ${strengthText}` : '';
+                strengthIndicator.style.color = strengthColor;
+            }
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            // Uzunluk kontrolü
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            
+            // Karakter çeşitliliği
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            return strength;
+        }
+
+        // Şifre onaylama kontrolü
+        document.getElementById('confirmPassword').addEventListener('input', function(e) {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = e.target.value;
+            
+            let matchIndicator = document.getElementById('passwordMatch');
+            if (!matchIndicator) {
+                matchIndicator = document.createElement('small');
+                matchIndicator.id = 'passwordMatch';
+                matchIndicator.style.cssText = `
+                    display: block;
+                    margin-top: 5px;
+                    font-weight: bold;
+                `;
+                e.target.parentElement.appendChild(matchIndicator);
+            }
+            
+            if (confirmPassword.length > 0) {
+                if (newPassword === confirmPassword) {
+                    matchIndicator.textContent = '✅ Şifreler eşleşiyor';
+                    matchIndicator.style.color = '#27ae60';
+                } else {
+                    matchIndicator.textContent = '❌ Şifreler eşleşmiyor';
+                    matchIndicator.style.color = '#e74c3c';
+                }
+            } else {
+                matchIndicator.textContent = '';
+            }
+        });
+
+        // Telefon formatı otomatik düzenleme
+        document.getElementById('updatePhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 10) {
+                value = value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '($1) $2 $3 $4');
+            }
+            e.target.value = value;
+        });
+
+        // Sayfa kapatılmadan önce değişiklikleri kontrol et
+        window.addEventListener('beforeunload', function(e) {
+            const currentPasswordValue = document.getElementById('currentPassword').value;
+            const newPasswordValue = document.getElementById('newPassword').value;
+            const phoneValue = document.getElementById('updatePhone').value;
+            const emailValue = document.getElementById('updateEmail').value;
+            
+            // Orijinal değerlerle karşılaştır
+            const hasPasswordChanges = currentPasswordValue || newPasswordValue;
+            const hasContactChanges = phoneValue !== currentDealer.phone || 
+                                    emailValue !== currentDealer.email;
+            
+            if (hasPasswordChanges || hasContactChanges) {
+                e.preventDefault();
+                e.returnValue = 'Kaydedilmemiş değişiklikleriniz var. Sayfayı kapatmak istediğinizden emin misiniz?';
+            }
+        });
+
+        // Otomatik kaydetme özelliği (opsiyonel)
+        let autoSaveTimeout;
+        
+        ['updatePhone', 'updateEmail', 'updateAddress', 'updateNotes'].forEach(inputId => {
+            document.getElementById(inputId).addEventListener('input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    // 3 saniye sonra otomatik kaydet (opsiyonel)
+                    // updateContactInfo();
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>)
