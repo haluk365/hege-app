@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siparişlerim - Bayi Paneli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats-bar {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .filter-section {
+            padding: 25px 30px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #9b59b6;
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+        }
+
+        .refresh-btn {
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #2ecc71;
+            transform: rotate(180deg);
+        }
+
+        .orders-container {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-left: 5px solid #9b59b6;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .order-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .order-id {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+
+        .order-date {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-beklemede {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-onaylandi {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-hazirlaniyor {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-kargoda {
+            background: #e2e3ff;
+            color: #383d41;
+        }
+
+        .status-teslim-edildi {
+            background: #d1ecf1;
+            color: #155724;
+        }
+
+        .status-iptal-edildi {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-body {
+            padding: 25px;
+        }
+
+        .order-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .summary-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .order-items {
+            margin-bottom: 20px;
+        }
+
+        .items-header {
+            background: #ecf0f1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .items-header:hover {
+            background: #d5dbdb;
+        }
+
+        .items-list {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .items-list.expanded {
+            display: block;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .item-detail {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-details {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-details:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c0392b;
+        }
+
+        .btn-reorder {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-reorder:hover {
+            background: #2ecc71;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-orders h3 {
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .no-orders p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .create-order-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .create-order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.3);
+        }
+
+        .order-progress {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .progress-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .step-circle.active {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .step-circle.completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8em;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        .step-label.active {
+            color: #9b59b6;
+            font-weight: bold;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ecf0f1;
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: #27ae60;
+            transition: width 0.5s ease;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #9b59b6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .filter-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .order-summary {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .item-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 8px;
+            }
+            
+            .order-actions {
+                justify-content: center;
+            }
+            
+            .progress-steps {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .progress-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📋 Siparişlerim</h1>
+                <div class="header-info">
+                    <span id="dealerName">Bayi</span> - Sipariş takibi ve geçmiş siparişler
+                </div>
+            </div>
+            <a href="dashboard.html" class="back-btn">← Dashboard</a>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Toplam Sipariş</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="activeOrders">0</div>
+                <div class="stat-label">Aktif Sipariş</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completedOrders">0</div>
+                <div class="stat-label">Tamamlanan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalValue">₺0</div>
+                <div class="stat-label">Toplam Tutar</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="searchBox">Sipariş Ara</label>
+                    <input type="text" id="searchBox" placeholder="Sipariş numarası veya ürün adı...">
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">Durum</label>
+                    <select id="statusFilter">
+                        <option value="">Tümü</option>
+                        <option value="Beklemede">Beklemede</option>
+                        <option value="Onaylandı">Onaylandı</option>
+                        <option value="Hazırlanıyor">Hazırlanıyor</option>
+                        <option value="Kargoda">Kargoda</option>
+                        <option value="Teslim Edildi">Teslim Edildi</option>
+                        <option value="İptal Edildi">İptal Edildi</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateRange">Tarih Aralığı</label>
+                    <select id="dateRange">
+                        <option value="">Tümü</option>
+                        <option value="today">Bugün</option>
+                        <option value="week">Bu Hafta</option>
+                        <option value="month">Bu Ay</option>
+                        <option value="3months">Son 3 Ay</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sortBy">Sırala</label>
+                    <select id="sortBy">
+                        <option value="date-desc">Yeni → Eski</option>
+                        <option value="date-asc">Eski → Yeni</option>
+                        <option value="amount-desc">Tutar (Yüksek)</option>
+                        <option value="amount-asc">Tutar (Düşük)</option>
+                        <option value="status">Duruma Göre</option>
+                    </select>
+                </div>
+                <button class="refresh-btn" onclick="loadOrders()" title="Yenile">
+                    🔄
+                </button>
+            </div>
+        </div>
+
+        <div class="orders-container">
+            <div class="loading" id="loadingIndicator">
+                Siparişler yükleniyor...
+            </div>
+            
+            <div id="ordersList" style="display: none;">
+                <!-- Siparişler buraya gelecek -->
+            </div>
+
+            <div class="no-orders" id="noOrders" style="display: none;">
+                <h3>📦 Henüz Sipariş Yok</h3>
+                <p>İlk siparişinizi vererek başlayın!</p>
+                <a href="fiyat-listesi.html" class="create-order-btn">🛒 Sipariş Ver</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let orders = [];
+        let filteredOrders = [];
+        let currentDealer = null;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadDealerInfo();
+            loadOrders();
+            setupEventListeners();
+        });
+
+        function checkLoginStatus() {
+            const dealerData = sessionStorage.getItem('currentDealer');
+            if (status === 'İptal Edildi') {
+                return `
+                    <div class="order-progress">
+                        <div class="progress-title">📋 Sipariş Durumu</div>
+                        <div style="text-align: center; padding: 20px; color: #e74c3c;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">❌</div>
+                            <strong>Sipariş İptal Edildi</strong>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const currentStepIndex = steps.findIndex(step => step.key === status);
+            const progressPercent = currentStepIndex >= 0 ? (currentStepIndex / (steps.length - 1)) * 100 : 0;
+
+            return `
+                <div class="order-progress">
+                    <div class="progress-title">📋 Sipariş Durumu</div>
+                    <div class="progress-steps">
+                        <div class="progress-line">
+                            <div class="progress-line-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        ${steps.map((step, index) => `
+                            <div class="progress-step">
+                                <div class="step-circle ${index < currentStepIndex ? 'completed' : index === currentStepIndex ? 'active' : ''}">
+                                    ${step.icon}
+                                </div>
+                                <div class="step-label ${index === currentStepIndex ? 'active' : ''}">${step.label}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleItems(orderId) {
+            const itemsList = document.getElementById(`items-${orderId}`);
+            const header = itemsList.previousElementSibling;
+            const arrow = header.querySelector('span');
+            
+            if (itemsList.classList.contains('expanded')) {
+                itemsList.classList.remove('expanded');
+                arrow.textContent = '▼';
+            } else {
+                itemsList.classList.add('expanded');
+                arrow.textContent = '▲';
+            }
+        }
+
+        function updateStats() {
+            const totalOrders = orders.length;
+            const activeOrders = orders.filter(o => !['Teslim Edildi', 'İptal Edildi'].includes(o.status)).length;
+            const completedOrders = orders.filter(o => o.status === 'Teslim Edildi').length;
+            const totalValue = orders.reduce((sum, o) => sum + o.finalTotal, 0);
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('activeOrders').textContent = activeOrders;
+            document.getElementById('completedOrders').textContent = completedOrders;
+            document.getElementById('totalValue').textContent = `₺${totalValue.toLocaleString('tr-TR')}`;
+        }
+
+        function showOrderDetails(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const itemsText = order.items.map(item => 
+                `• ${item.productCode} - ${item.quantity} adet - ₺${(item.discountedPrice * item.quantity).toLocaleString('tr-TR')}`
+            ).join('\n');
+
+            alert(`
+📋 Sipariş Detayları
+
+🆔 Sipariş No: #${order.id}
+📅 Tarih: ${order.createdAt}
+📊 Durum: ${order.status}
+⚡ Öncelik: ${order.priority === 'normal' ? 'Normal' : order.priority === 'urgent' ? 'Acil' : 'Çok Acil'}
+
+📦 Ürünler:
+${itemsText}
+
+💰 Finansal Özet:
+• Liste Toplamı: ₺${order.originalTotal.toLocaleString('tr-TR')}
+• İskonto (${order.discountRate}%): -₺${(order.originalTotal - order.finalTotal).toLocaleString('tr-TR')}
+• Ödenecek Tutar: ₺${order.finalTotal.toLocaleString('tr-TR')}
+
+📍 Teslimat Adresi:
+${order.deliveryAddress || 'Belirtilmemiş'}
+
+${order.deliveryDate ? `📅 Talep Edilen Tarih: ${order.deliveryDate}` : ''}
+
+${order.orderNotes ? `📝 Notlar: ${order.orderNotes}` : ''}
+            `);
+        }
+
+        function cancelOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            if (!['Beklemede', 'Onaylandı'].includes(order.status)) {
+                alert('Bu sipariş artık iptal edilemez.');
+                return;
+            }
+
+            if (confirm(`#${orderId} numaralı siparişi iptal etmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.`)) {
+                // Siparişi iptal et
+                const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const orderIndex = allOrders.findIndex(o => o.id === orderId);
+                
+                if (orderIndex !== -1) {
+                    allOrders[orderIndex].status = 'İptal Edildi';
+                    allOrders[orderIndex].updatedAt = new Date().toLocaleString('tr-TR');
+                    localStorage.setItem('orders', JSON.stringify(allOrders));
+                    
+                    // Aktivite kaydet
+                    addActivity('Sipariş İptal Edildi', `#${orderId} numaralı sipariş ${currentDealer.dealerName} tarafından iptal edildi`);
+                    
+                    // Sayfayı yenile
+                    loadOrders();
+                    
+                    alert('Sipariş başarıyla iptal edildi.');
+                }
+            }
+        }
+
+        function reorder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            if (confirm(`#${orderId} numaralı siparişi tekrar vermek istediğinizden emin misiniz?\n\nÜrünler sepetinize eklenecek.`)) {
+                // Ürünleri sepete ekle
+                let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                
+                order.items.forEach(orderItem => {
+                    const existingItem = cart.find(cartItem => cartItem.productId === orderItem.productId);
+                    
+                    if (existingItem) {
+                        existingItem.quantity += orderItem.quantity;
+                    } else {
+                        cart.push({
+                            productId: orderItem.productId,
+                            productCode: orderItem.productCode,
+                            brand: orderItem.brand,
+                            productType: orderItem.productType,
+                            originalPrice: orderItem.originalPrice,
+                            discountedPrice: orderItem.discountedPrice,
+                            quantity: orderItem.quantity
+                        });
+                    }
+                });
+                
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                alert(`${order.items.length} ürün sepetinize eklendi!\n\nSipariş sayfasına yönlendirileceksiniz.`);
+                window.location.href = 'siparis-ver.html';
+            }
+        }
+
+        function addActivity(title, description) {
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            activities.push({
+                title: title,
+                description: description,
+                time: new Date().toLocaleString('tr-TR')
+            });
+            
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        // Klavye kısayolları
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                loadOrders();
+            }
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchBox').focus();
+            }
+        });
+
+        // Otomatik yenileme (5 dakikada bir)
+        setInterval(() => {
+            if (!document.hidden) {
+                loadOrders();
+            }
+        }, 5 * 60 * 1000);
+
+        // Sayfa görünür olduğunda yenile
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadOrders();
+            }
+        });
+    </script>
+</body>
+</html> (!dealerData) {
+                alert('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+                window.location.href = 'index.html';
+                return;
+            }
+            currentDealer = JSON.parse(dealerData);
+        }
+
+        function loadDealerInfo() {
+            if (currentDealer) {
+                document.getElementById('dealerName').textContent = currentDealer.dealerName;
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchBox').addEventListener('input', filterOrders);
+            document.getElementById('statusFilter').addEventListener('change', filterOrders);
+            document.getElementById('dateRange').addEventListener('change', filterOrders);
+            document.getElementById('sortBy').addEventListener('change', filterOrders);
+        }
+
+        function loadOrders() {
+            setTimeout(() => {
+                const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                orders = allOrders.filter(order => order.dealerId === currentDealer.id);
+                filteredOrders = [...orders];
+                
+                displayOrders();
+                updateStats();
+                
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('ordersList').style.display = 'block';
+                
+            }, 1000);
+        }
+
+        function filterOrders() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateRange = document.getElementById('dateRange').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            filteredOrders = orders.filter(order => {
+                const matchesSearch = order.id.toString().includes(searchTerm) ||
+                                    order.items.some(item => 
+                                        item.productCode.toLowerCase().includes(searchTerm) ||
+                                        item.brand.toLowerCase().includes(searchTerm)
+                                    );
+
+                const matchesStatus = !statusFilter || order.status === statusFilter;
+                const matchesDate = matchesDateRange(order, dateRange);
+
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+
+            sortOrders(sortBy);
+            displayOrders();
+        }
+
+        function matchesDateRange(order, range) {
+            if (!range) return true;
+
+            const orderDate = new Date(order.createdAt.split(' ')[0].split('.').reverse().join('-'));
+            const now = new Date();
+            
+            switch(range) {
+                case 'today':
+                    return orderDate.toDateString() === now.toDateString();
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return orderDate >= weekAgo;
+                case 'month':
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return orderDate >= monthAgo;
+                case '3months':
+                    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    return orderDate >= threeMonthsAgo;
+                default:
+                    return true;
+            }
+        }
+
+        function sortOrders(sortBy) {
+            switch(sortBy) {
+                case 'date-desc':
+                    filteredOrders.sort((a, b) => new Date(b.createdAt.split(' ')[0].split('.').reverse().join('-')) - 
+                                                  new Date(a.createdAt.split(' ')[0].split('.').reverse().join('-')));
+                    break;
+                case 'date-asc':
+                    filteredOrders.sort((a, b) => new Date(a.createdAt.split(' ')[0].split('.').reverse().join('-')) - 
+                                                  new Date(b.createdAt.split(' ')[0].split('.').reverse().join('-')));
+                    break;
+                case 'amount-desc':
+                    filteredOrders.sort((a, b) => b.finalTotal - a.finalTotal);
+                    break;
+                case 'amount-asc':
+                    filteredOrders.sort((a, b) => a.finalTotal - b.finalTotal);
+                    break;
+                case 'status':
+                    const statusOrder = ['Beklemede', 'Onaylandı', 'Hazırlanıyor', 'Kargoda', 'Teslim Edildi', 'İptal Edildi'];
+                    filteredOrders.sort((a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status));
+                    break;
+            }
+        }
+
+        function displayOrders() {
+            const ordersList = document.getElementById('ordersList');
+            const noOrders = document.getElementById('noOrders');
+
+            if (filteredOrders.length === 0) {
+                ordersList.style.display = 'none';
+                noOrders.style.display = 'block';
+                return;
+            }
+
+            noOrders.style.display = 'none';
+            ordersList.style.display = 'block';
+
+            ordersList.innerHTML = filteredOrders.map(order => createOrderCard(order)).join('');
+        }
+
+        function createOrderCard(order) {
+            const canCancel = ['Beklemede', 'Onaylandı'].includes(order.status);
+            const isCompleted = ['Teslim Edildi', 'İptal Edildi'].includes(order.status);
+
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Sipariş #${order.id}</div>
+                            <div class="order-date">${order.createdAt}</div>
+                        </div>
+                        <div class="order-status status-${order.status.toLowerCase().replace(/\s+/g, '-').replace('ç', 'c').replace('ş', 's').replace('ı', 'i').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o')}">${order.status}</div>
+                    </div>
+
+                    <div class="order-body">
+                        <div class="order-summary">
+                            <div class="summary-item">
+                                <div class="summary-value">${order.totalItems}</div>
+                                <div class="summary-label">Toplam Ürün</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">₺${order.finalTotal.toLocaleString('tr-TR')}</div>
+                                <div class="summary-label">Toplam Tutar</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${order.discountRate}%</div>
+                                <div class="summary-label">İskonto Oranı</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${order.priority === 'normal' ? 'Normal' : order.priority === 'urgent' ? 'Acil' : 'Çok Acil'}</div>
+                                <div class="summary-label">Öncelik</div>
+                            </div>
+                        </div>
+
+                        ${createOrderProgress(order.status)}
+
+                        <div class="order-items">
+                            <div class="items-header" onclick="toggleItems(${order.id})">
+                                📦 Sipariş Detayları (${order.items.length} ürün) 
+                                <span style="float: right;">▼</span>
+                            </div>
+                            <div class="items-list" id="items-${order.id}">
+                                <div class="item-row" style="font-weight: bold; background: #e9ecef;">
+                                    <div>Ürün</div>
+                                    <div>Adet</div>
+                                    <div>Birim Fiyat</div>
+                                    <div>Toplam</div>
+                                </div>
+                                ${order.items.map(item => `
+                                    <div class="item-row">
+                                        <div>
+                                            <div class="item-info">${item.productCode}</div>
+                                            <div class="item-detail">${item.brand} - ${item.productType}</div>
+                                        </div>
+                                        <div>${item.quantity}</div>
+                                        <div>₺${item.discountedPrice.toLocaleString('tr-TR')}</div>
+                                        <div>₺${(item.discountedPrice * item.quantity).toLocaleString('tr-TR')}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        ${order.deliveryAddress ? `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>📍 Teslimat Adresi:</strong><br>
+                            ${order.deliveryAddress}
+                            ${order.deliveryDate ? `<br><strong>📅 Talep Edilen Tarih:</strong> ${order.deliveryDate}` : ''}
+                        </div>` : ''}
+
+                        ${order.orderNotes ? `
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>📝 Sipariş Notları:</strong><br>
+                            ${order.orderNotes}
+                        </div>` : ''}
+
+                        <div class="order-actions">
+                            <button class="btn btn-details" onclick="showOrderDetails(${order.id})">
+                                👁️ Detaylar
+                            </button>
+                            ${canCancel ? `
+                            <button class="btn btn-cancel" onclick="cancelOrder(${order.id})">
+                                ❌ İptal Et
+                            </button>` : ''}
+                            ${isCompleted ? `
+                            <button class="btn btn-reorder" onclick="reorder(${order.id})">
+                                🔄 Tekrar Sipariş Ver
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createOrderProgress(status) {
+            const steps = [
+                { key: 'Beklemede', label: 'Beklemede', icon: '⏳' },
+                { key: 'Onaylandı', label: 'Onaylandı', icon: '✅' },
+                { key: 'Hazırlanıyor', label: 'Hazırlanıyor', icon: '🔧' },
+                { key: 'Kargoda', label: 'Kargoda', icon: '🚚' },
+                { key: 'Teslim Edildi', label: 'Teslim Edildi', icon: '📦' }
+            ];
+
+            if
