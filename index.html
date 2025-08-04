@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayi Yönetim Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+
+        .options-container {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .option-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #3498db;
+            box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+        }
+
+        .admin-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .admin-card:hover {
+            border-color: #e74c3c;
+            box-shadow: 0 15px 30px rgba(231, 76, 60, 0.3);
+        }
+
+        .dealer-card {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .dealer-card:hover {
+            border-color: #27ae60;
+            box-shadow: 0 15px 30px rgba(39, 174, 96, 0.3);
+        }
+
+        .card-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-description {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .card-icon {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🏭 Bayi Yönetim Sistemi</h1>
+            <p>Profesyonel İş Ortağı Yönetim Platformu</p>
+        </div>
+
+        <div class="options-container">
+            <a href="admin/index.html" class="option-card admin-card">
+                <span class="card-icon">👨‍💼</span>
+                <div class="card-title">Admin Paneli</div>
+                <div class="card-description">
+                    Ürün yönetimi, bayi yönetimi, sipariş takibi ve raporlama işlemlerini gerçekleştirin.
+                </div>
+            </a>
+
+            <a href="bayi/index.html" class="option-card dealer-card">
+                <span class="card-icon">🏪</span>
+                <div class="card-title">Bayi Girişi</div>
+                <div class="card-description">
+                    Fiyat listelerini görüntüleyin, sipariş verin ve mevcut siparişlerinizi takip edin.
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Bayi Yönetim Sistemi - Tüm hakları saklıdır</p>
+        </div>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde animasyon efekti
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.option-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+
+        // Klavye navigasyonu
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') {
+                window.location.href = 'admin/index.html';
+            } else if (e.key === '2') {
+                window.location.href = 'bayi/index.html';
+            }
+        });
+    </script>
+</body>
+</html>
