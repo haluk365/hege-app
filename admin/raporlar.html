@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - Raporlar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .controls-section {
+            padding: 25px 30px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .date-filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .date-filters select,
+        .date-filters input {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .date-filters select:focus,
+        .date-filters input:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.2);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #2980b9;
+        }
+
+        .btn-refresh {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #2ecc71;
+        }
+
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #ecf0f1;
+        }
+
+        .overview-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .overview-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .overview-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .overview-label {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .overview-change {
+            margin-top: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .change-positive {
+            color: #27ae60;
+        }
+
+        .change-negative {
+            color: #e74c3c;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .report-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .report-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .report-body {
+            padding: 25px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .top-performers {
+            margin-top: 20px;
+        }
+
+        .performer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .performer-rank {
+            background: #27ae60;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .performer-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .performer-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .performer-details {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .performer-value {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+
+        .stock-alerts {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .stock-alerts h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .stock-alert-item {
+            padding: 10px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-critical {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        .loading-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: #7f8c8d;
+        }
+
+        .loading-chart::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #27ae60;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .overview-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-filters {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 Raporlar & Analizler</h1>
+                <div class="header-info">Satış performansı, bayi analizleri ve iş zekası raporları</div>
+            </div>
+            <a href="index.html" class="back-btn">← Admin Paneli</a>
+        </div>
+
+        <div class="controls-section">
+            <div class="date-filters">
+                <select id="periodFilter">
+                    <option value="7">Son 7 Gün</option>
+                    <option value="30" selected>Son 30 Gün</option>
+                    <option value="90">Son 3 Ay</option>
+                    <option value="365">Son 1 Yıl</option>
+                    <option value="custom">Özel Tarih</option>
+                </select>
+                <input type="date" id="startDate" style="display: none;">
+                <input type="date" id="endDate" style="display: none;">
+            </div>
+            <div class="export-buttons">
+                <button class="btn btn-refresh" onclick="loadReports()" title="Raporları Yenile">🔄 Yenile</button>
+                <button class="btn btn-export" onclick="exportReports()" title="PDF/Excel">📄 Dışa Aktar</button>
+            </div>
+        </div>
+
+        <div class="overview-stats">
+            <div class="overview-card">
+                <span class="overview-icon">💰</span>
+                <div class="overview-number" id="totalRevenue">₺0</div>
+                <div class="overview-label">Toplam Ciro</div>
+                <div class="overview-change change-positive" id="revenueChange">+0%</div>
+            </div>
+            <div class="overview-card">
+                <span class="overview-icon">📦</span>
+                <div class="overview-number" id="totalOrders">0</div>
+                <div class="overview-label">Toplam Sipariş</div>
+                <div class="overview-change change-positive" id="ordersChange">+0%</div>
+            </div>
+            <div class="overview-card">
+                <span class="overview-icon">🏪</span>
+                <div class="overview-number" id="activeDealers">0</div>
+                <div class="overview-label">Aktif Bayi</div>
+                <div class="overview-change change-positive" id="dealersChange">+0%</div>
+            </div>
+            <div class="overview-card">
+                <span class="overview-icon">📈</span>
+                <div class="overview-number" id="avgOrderValue">₺0</div>
+                <div class="overview-label">Ortalama Sipariş</div>
+                <div class="overview-change change-positive" id="avgChange">+0%</div>
+            </div>
+        </div>
+
+        <div class="reports-grid">
+            <!-- Satış Trendi -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">📈 Satış Trendi</div>
+                    <div class="report-subtitle">Son 30 günlük satış performansı</div>
+                </div>
+                <div class="report-body">
+                    <div class="chart-container">
+                        <div class="loading-chart" id="salesChartLoading">Grafik yükleniyor...</div>
+                        <canvas id="salesChart" style="display: none;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sipariş Durumları -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">📊 Sipariş Durumları</div>
+                    <div class="report-subtitle">Aktif siparişlerin durum dağılımı</div>
+                </div>
+                <div class="report-body">
+                    <div class="chart-container">
+                        <div class="loading-chart" id="statusChartLoading">Grafik yükleniyor...</div>
+                        <canvas id="statusChart" style="display: none;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Bayiler -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">🏆 En İyi Bayiler</div>
+                    <div class="report-subtitle">Satış performansına göre sıralama</div>
+                </div>
+                <div class="report-body">
+                    <div class="top-performers" id="topDealers">
+                        <div class="loading-chart">Veriler yükleniyor...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ürün Kategorileri -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">🔧 Ürün Kategorileri</div>
+                    <div class="report-subtitle">Makine tiplerine göre satış dağılımı</div>
+                </div>
+                <div class="report-body">
+                    <div class="chart-container">
+                        <div class="loading-chart" id="categoryChartLoading">Grafik yükleniyor...</div>
+                        <canvas id="categoryChart" style="display: none;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stok Durumu -->
+            <div class="report-card full-width">
+                <div class="report-header">
+                    <div class="report-title">📦 Stok Analizi</div>
+                    <div class="report-subtitle">Ürün stok durumları ve kritik seviyeler</div>
+                </div>
+                <div class="report-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <div class="chart-container">
+                            <div class="loading-chart" id="stockChartLoading">Grafik yükleniyor...</div>
+                            <canvas id="stockChart" style="display: none;"></canvas>
+                        </div>
+                        <div>
+                            <div class="stock-alerts" id="stockAlerts">
+                                <h4>⚠️ Stok Uyarıları</h4>
+                                <div class="loading-chart">Kontrol ediliyor...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let orders = [];
+        let dealers = [];
+        let products = [];
+        let charts = {};
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReports();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('periodFilter').addEventListener('change', function() {
+                const value = this.value;
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+                
+                if (value === 'custom') {
+                    startDate.style.display = 'block';
+                    endDate.style.display = 'block';
+                } else {
+                    startDate.style.display = 'none';
+                    endDate.style.display = 'none';
+                    loadReports();
+                }
+            });
+
+            document.getElementById('startDate').addEventListener('change', loadReports);
+            document.getElementById('endDate').addEventListener('change', loadReports);
+        }
+
+        function loadReports() {
+            setTimeout(() => {
+                orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                dealers = JSON.parse(localStorage.getItem('dealers') || '[]');
+                products = JSON.parse(localStorage.getItem('products') || '[]');
+                
+                updateOverviewStats();
+                createSalesChart();
+                createStatusChart();
+                createCategoryChart();
+                createStockChart();
+                updateTopDealers();
+                updateStockAlerts();
+                
+            }, 1000);
+        }
+
+        function updateOverviewStats() {
+            const periodDays = parseInt(document.getElementById('periodFilter').value) || 30;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - periodDays);
+
+            const periodOrders = orders.filter(order => {
+                const orderDate = new Date(order.createdAt.split(' ')[0].split('.').reverse().join('-'));
+                return orderDate >= cutoffDate && order.status !== 'İptal Edildi';
+            });
+
+            const totalRevenue = periodOrders.reduce((sum, order) => sum + order.finalTotal, 0);
+            const totalOrdersCount = periodOrders.length;
+            const activeDealersCount = dealers.filter(d => d.status === 'active').length;
+            const avgOrderValue = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
+
+            document.getElementById('totalRevenue').textContent = `₺${totalRevenue.toLocaleString('tr-TR')}`;
+            document.getElementById('totalOrders').textContent = totalOrdersCount;
+            document.getElementById('activeDealers').textContent = activeDealersCount;
+            document.getElementById('avgOrderValue').textContent = `₺${avgOrderValue.toLocaleString('tr-TR')}`;
+
+            // Değişim yüzdelerini hesapla (simülasyon)
+            document.getElementById('revenueChange').textContent = '+15.3%';
+            document.getElementById('ordersChange').textContent = '+8.7%';
+            document.getElementById('dealersChange').textContent = '+12.1%';
+            document.getElementById('avgChange').textContent = '+6.2%';
+        }
+
+        function createSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Son 30 günün verilerini simüle et
+            const labels = [];
+            const salesData = [];
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' }));
+                
+                // Gerçek verileri hesapla
+                const dayOrders = orders.filter(order => {
+                    const orderDate = new Date(order.createdAt.split(' ')[0].split('.').reverse().join('-'));
+                    return orderDate.toDateString() === date.toDateString() && order.status !== 'İptal Edildi';
+                });
+                
+                const dayRevenue = dayOrders.reduce((sum, order) => sum + order.finalTotal, 0);
+                salesData.push(dayRevenue);
+            }
+
+            if (charts.sales) {
+                charts.sales.destroy();
+            }
+
+            charts.sales = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Günlük Satış (₺)',
+                        data: salesData,
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₺' + value.toLocaleString('tr-TR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('salesChartLoading').style.display = 'none';
+            document.getElementById('salesChart').style.display = 'block';
+        }
+
+        function createStatusChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            const statusCounts = {
+                'Beklemede': orders.filter(o => o.status === 'Beklemede').length,
+                'Onaylandı': orders.filter(o => o.status === 'Onaylandı').length,
+                'Hazırlanıyor': orders.filter(o => o.status === 'Hazırlanıyor').length,
+                'Kargoda': orders.filter(o => o.status === 'Kargoda').length,
+                'Teslim Edildi': orders.filter(o => o.status === 'Teslim Edildi').length
+            };
+
+            if (charts.status) {
+                charts.status.destroy();
+            }
+
+            charts.status = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: [
+                            '#f39c12',
+                            '#27ae60', 
+                            '#3498db',
+                            '#9b59b6',
+                            '#2ecc71'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('statusChartLoading').style.display = 'none';
+            document.getElementById('statusChart').style.display = 'block';
+        }
+
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            // Makine tiplerine göre satış dağılımı
+            const categoryData = {};
+            
+            orders.filter(o => o.status !== 'İptal Edildi').forEach(order => {
+                order.items.forEach(item => {
+                    const product = products.find(p => p.id === item.productId);
+                    if (product) {
+                        const category = product.machineType;
+                        categoryData[category] = (categoryData[category] || 0) + (item.discountedPrice * item.quantity);
+                    }
+                });
+            });
+
+            if (charts.category) {
+                charts.category.destroy();
+            }
+
+            charts.category = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        label: 'Satış (₺)',
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#3498db',
+                            '#e74c3c',
+                            '#f39c12',
+                            '#27ae60',
+                            '#9b59b6'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₺' + value.toLocaleString('tr-TR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('categoryChartLoading').style.display = 'none';
+            document.getElementById('categoryChart').style.display = 'block';
+        }
+
+        function createStockChart() {
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            
+            const stockCounts = {
+                'Stokta Var': products.filter(p => p.stock === 'Stokta Var').length,
+                'Stok Yok': products.filter(p => p.stock === 'Stok Yok').length,
+                'Tedarik Edilecek': products.filter(p => p.stock === 'Tedarik Edilecek').length
+            };
+
+            if (charts.stock) {
+                charts.stock.destroy();
+            }
+
+            charts.stock = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(stockCounts),
+                    datasets: [{
+                        data: Object.values(stockCounts),
+                        backgroundColor: [
+                            '#27ae60',
+                            '#e74c3c',
+                            '#f39c12'
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('stockChartLoading').style.display = 'none';
+            document.getElementById('stockChart').style.display = 'block';
+        }
+
+        function updateTopDealers() {
+            const dealerStats = dealers.map(dealer => {
+                const dealerOrders = orders.filter(o => o.dealerId === dealer.id && o.status !== 'İptal Edildi');
+                const totalRevenue = dealerOrders.reduce((sum, o) => sum + o.finalTotal, 0);
+                const totalOrders = dealerOrders.length;
+                
+                return {
+                    ...dealer,
+                    totalRevenue,
+                    totalOrders
+                };
+            }).sort((a, b) => b.totalRevenue - a.totalRevenue).slice(0, 5);
+
+            const topDealersContainer = document.getElementById('topDealers');
+            
+            if (dealerStats.length === 0) {
+                topDealersContainer.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Henüz sipariş vermiş bayi bulunmuyor.</p>';
+                return;
+            }
+
+            topDealersContainer.innerHTML = dealerStats.map((dealer, index) => `
+                <div class="performer-item">
+                    <div class="performer-rank">${index + 1}</div>
+                    <div class="performer-info">
+                        <div class="performer-name">${dealer.dealerName}</div>
+                        <div class="performer-details">${dealer.totalOrders} sipariş • İskonto: ${dealer.discountRate}%</div>
+                    </div>
+                    <div class="performer-value">₺${dealer.totalRevenue.toLocaleString('tr-TR')}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateStockAlerts() {
+            const stockAlertsContainer = document.getElementById('stockAlerts');
+            
+            // Stok durumu kritik olan ürünleri bul
+            const outOfStock = products.filter(p => p.stock === 'Stok Yok');
+            const needSupply = products.filter(p => p.stock === 'Tedarik Edilecek');
+            
+            let alertsHtml = '<h4>⚠️ Stok Uyarıları</h4>';
+            
+            if (outOfStock.length === 0 && needSupply.length === 0) {
+                alertsHtml += '<p style="text-align: center; color: #27ae60; margin-top: 15px;">✅ Tüm ürünler stokta mevcut!</p>';
+            } else {
+                outOfStock.forEach(product => {
+                    alertsHtml += `
+                        <div class="stock-alert-item alert-critical">
+                            <div>
+                                <strong>${product.productCode}</strong><br>
+                                <small>${product.brand} - ${product.machineType}</small>
+                            </div>
+                            <div style="color: #e74c3c; font-weight: bold;">Stokta Yok</div>
+                        </div>
+                    `;
+                });
+                
+                needSupply.forEach(product => {
+                    alertsHtml += `
+                        <div class="stock-alert-item alert-warning">
+                            <div>
+                                <strong>${product.productCode}</strong><br>
+                                <small>${product.brand} - ${product.machineType}</small>
+                            </div>
+                            <div style="color: #f39c12; font-weight: bold;">Tedarik Edilecek</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            stockAlertsContainer.innerHTML = alertsHtml;
+        }
+
+        function exportReports() {
+            // Rapor verilerini CSV formatında hazırla
+            const reportData = {
+                overview: {
+                    totalRevenue: document.getElementById('totalRevenue').textContent,
+                    totalOrders: document.getElementById('totalOrders').textContent,
+                    activeDealers: document.getElementById('activeDealers').textContent,
+                    avgOrderValue: document.getElementById('avgOrderValue').textContent
+                },
+                topDealers: dealers.map(dealer => {
+                    const dealerOrders = orders.filter(o => o.dealerId === dealer.id && o.status !== 'İptal Edildi');
+                    const totalRevenue = dealerOrders.reduce((sum, o) => sum + o.finalTotal, 0);
+                    return {
+                        name: dealer.dealerName,
+                        orders: dealerOrders.length,
+                        revenue: totalRevenue,
+                        discount: dealer.discountRate
+                    };
+                }).sort((a, b) => b.revenue - a.revenue),
+                stockStatus: {
+                    inStock: products.filter(p => p.stock === 'Stokta Var').length,
+                    outOfStock: products.filter(p => p.stock === 'Stok Yok').length,
+                    needSupply: products.filter(p => p.stock === 'Tedarik Edilecek').length
+                }
+            };
+
+            // CSV içeriği oluştur
+            let csvContent = 'GENEL ÖZET\n';
+            csvContent += `Toplam Ciro,${reportData.overview.totalRevenue}\n`;
+            csvContent += `Toplam Sipariş,${reportData.overview.totalOrders}\n`;
+            csvContent += `Aktif Bayi,${reportData.overview.activeDealers}\n`;
+            csvContent += `Ortalama Sipariş,${reportData.overview.avgOrderValue}\n\n`;
+            
+            csvContent += 'EN İYİ BAYİLER\n';
+            csvContent += 'Bayi Adı,Sipariş Sayısı,Toplam Ciro,İskonto Oranı\n';
+            reportData.topDealers.forEach(dealer => {
+                csvContent += `${dealer.name},${dealer.orders},₺${dealer.revenue.toLocaleString('tr-TR')},${dealer.discount}%\n`;
+            });
+            
+            csvContent += '\nSTOK DURUMU\n';
+            csvContent += `Stokta Var,${reportData.stockStatus.inStock}\n`;
+            csvContent += `Stok Yok,${reportData.stockStatus.outOfStock}\n`;
+            csvContent += `Tedarik Edilecek,${reportData.stockStatus.needSupply}\n`;
+
+            // Dosyayı indir
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `raporlar_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Raporlar başarıyla dışa aktarıldı!');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.5s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.5s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+
+        // CSS animasyonları
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Klavye kısayolları
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                loadReports();
+            }
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportReports();
+            }
+        });
+
+        // Otomatik yenileme (5 dakikada bir)
+        setInterval(() => {
+            if (!document.hidden) {
+                loadReports();
+            }
+        }, 5 * 60 * 1000);
+
+        // Grafik boyutlandırma için resize event
+        window.addEventListener('resize', function() {
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.resize();
+            });
+        });
+    </script>
+</body>
+</html>
