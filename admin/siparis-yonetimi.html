@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - Sipariş Yönetimi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.pending {
+            border-left: 4px solid #f39c12;
+        }
+
+        .stat-card.approved {
+            border-left: 4px solid #27ae60;
+        }
+
+        .stat-card.preparing {
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-card.shipped {
+            border-left: 4px solid #9b59b6;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .controls-section {
+            padding: 25px 30px;
+            background: #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-refresh {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #2ecc71;
+            transform: rotate(180deg);
+        }
+
+        .btn-export {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #2980b9;
+        }
+
+        .orders-container {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-left: 5px solid #f39c12;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .order-card.urgent {
+            border-left-color: #e74c3c;
+            position: relative;
+        }
+
+        .order-card.urgent::before {
+            content: '🔥 ACİL';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .order-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .order-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1.3em;
+        }
+
+        .order-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .dealer-info {
+            text-align: center;
+        }
+
+        .dealer-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .dealer-discount {
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .order-amount {
+            text-align: right;
+        }
+
+        .amount-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 3px;
+        }
+
+        .amount-items {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .status-selector {
+            position: relative;
+        }
+
+        .status-current {
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .status-current:hover {
+            border-color: #f39c12;
+        }
+
+        .status-beklemede {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-onaylandi {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-hazirlaniyor {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-kargoda {
+            background: #e2e3ff;
+            color: #383d41;
+        }
+
+        .status-teslim-edildi {
+            background: #d1ecf1;
+            color: #155724;
+        }
+
+        .status-iptal-edildi {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #f39c12;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .status-dropdown.show {
+            display: block;
+        }
+
+        .status-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .status-option:last-child {
+            border-bottom: none;
+        }
+
+        .status-option:hover {
+            background: #f8f9fa;
+        }
+
+        .order-body {
+            padding: 25px;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .detail-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .items-section {
+            margin-top: 20px;
+        }
+
+        .items-toggle {
+            background: #ecf0f1;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .items-toggle:hover {
+            background: #d5dbdb;
+        }
+
+        .items-list {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .items-list.expanded {
+            display: block;
+        }
+
+        .items-header {
+            background: #e9ecef;
+            padding: 15px 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .item-row {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .item-detail {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .btn-approve {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #2ecc71;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c0392b;
+        }
+
+        .btn-details {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-details:hover {
+            background: #2980b9;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 80px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-orders h3 {
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: #7f8c8d;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin-left: 15px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: all 0.5s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        @media (max-width: 1024px) {
+            .order-header {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .order-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .items-header,
+            .item-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📋 Sipariş Yönetimi</h1>
+                <div class="header-info">Gelen siparişleri yönetin, onaylayın ve durumlarını güncelleyin</div>
+            </div>
+            <a href="index.html" class="back-btn">← Admin Paneli</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card pending" onclick="filterByStatus('Beklemede')">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Bekleyen Sipariş</div>
+            </div>
+            <div class="stat-card approved" onclick="filterByStatus('Onaylandı')">
+                <div class="stat-number" id="approvedCount">0</div>
+                <div class="stat-label">Onaylanan</div>
+            </div>
+            <div class="stat-card preparing" onclick="filterByStatus('Hazırlanıyor')">
+                <div class="stat-number" id="preparingCount">0</div>
+                <div class="stat-label">Hazırlanan</div>
+            </div>
+            <div class="stat-card shipped" onclick="filterByStatus('Kargoda')">
+                <div class="stat-number" id="shippedCount">0</div>
+                <div class="stat-label">Kargoda</div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="filter-group">
+                <input type="text" id="searchBox" placeholder="Sipariş no, bayi adı veya ürün ara...">
+                <select id="statusFilter">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="Beklemede">Beklemede</option>
+                    <option value="Onaylandı">Onaylandı</option>
+                    <option value="Hazırlanıyor">Hazırlanıyor</option>
+                    <option value="Kargoda">Kargoda</option>
+                    <option value="Teslim Edildi">Teslim Edildi</option>
+                    <option value="İptal Edildi">İptal Edildi</option>
+                </select>
+                <select id="priorityFilter">
+                    <option value="">Tüm Öncelikler</option>
+                    <option value="very-urgent">Çok Acil</option>
+                    <option value="urgent">Acil</option>
+                    <option value="normal">Normal</option>
+                </select>
+                <select id="sortBy">
+                    <option value="date-desc">Yeni → Eski</option>
+                    <option value="date-asc">Eski → Yeni</option>
+                    <option value="amount-desc">Tutar (Yüksek)</option>
+                    <option value="amount-asc">Tutar (Düşük)</option>
+                    <option value="priority">Öncelik</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-refresh" onclick="loadOrders()" title="Yenile">🔄 Yenile</button>
+                <button class="btn btn-export" onclick="exportOrders()" title="Excel'e Aktar">📊 Dışa Aktar</button>
+            </div>
+        </div>
+
+        <div class="orders-container">
+            <div class="loading" id="loadingIndicator">
+                Siparişler yükleniyor...
+            </div>
+            
+            <div id="ordersList" style="display: none;">
+                <!-- Siparişler buraya gelecek -->
+            </div>
+
+            <div class="no-orders" id="noOrders" style="display: none;">
+                <h3>📭 Sipariş Bulunmuyor</h3>
+                <p>Henüz hiç sipariş gelmemiş veya filtrelenmiş sonuç yok.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        let orders = [];
+        let filteredOrders = [];
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('searchBox').addEventListener('input', filterOrders);
+            document.getElementById('statusFilter').addEventListener('change', filterOrders);
+            document.getElementById('priorityFilter').addEventListener('change', filterOrders);
+            document.getElementById('sortBy').addEventListener('change', filterOrders);
+            
+            // Sayfa dışına tıklandığında dropdown'ları kapat
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.status-selector')) {
+                    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+        }
+
+        function loadOrders() {
+            setTimeout(() => {
+                orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                filteredOrders = [...orders];
+                
+                displayOrders();
+                updateStats();
+                
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('ordersList').style.display = 'block';
+                
+            }, 1000);
+        }
+
+        function filterOrders() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            filteredOrders = orders.filter(order => {
+                const matchesSearch = order.id.toString().includes(searchTerm) ||
+                                    order.dealerName.toLowerCase().includes(searchTerm) ||
+                                    order.items.some(item => 
+                                        item.productCode.toLowerCase().includes(searchTerm) ||
+                                        item.brand.toLowerCase().includes(searchTerm)
+                                    );
+
+                const matchesStatus = !statusFilter || order.status === statusFilter;
+                const matchesPriority = !priorityFilter || order.priority === priorityFilter;
+
+                return matchesSearch && matchesStatus && matchesPriority;
+            });
+
+            sortOrders(sortBy);
+            displayOrders();
+        }
+
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            filterOrders();
+        }
+
+        function sortOrders(sortBy) {
+            switch(sortBy) {
+                case 'date-desc':
+                    filteredOrders.sort((a, b) => new Date(b.createdAt.split(' ')[0].split('.').reverse().join('-')) - 
+                                                  new Date(a.createdAt.split(' ')[0].split('.').reverse().join('-')));
+                    break;
+                case 'date-asc':
+                    filteredOrders.sort((a, b) => new Date(a.createdAt.split(' ')[0].split('.').reverse().join('-')) - 
+                                                  new Date(b.createdAt.split(' ')[0].split('.').reverse().join('-')));
+                    break;
+                case 'amount-desc':
+                    filteredOrders.sort((a, b) => b.finalTotal - a.finalTotal);
+                    break;
+                case 'amount-asc':
+                    filteredOrders.sort((a, b) => a.finalTotal - b.finalTotal);
+                    break;
+                case 'priority':
+                    const priorityOrder = ['very-urgent', 'urgent', 'normal'];
+                    filteredOrders.sort((a, b) => priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority));
+                    break;
+            }
+        }
+
+        function displayOrders() {
+            const ordersList = document.getElementById('ordersList');
+            const noOrders = document.getElementById('noOrders');
+
+            if (filteredOrders.length === 0) {
+                ordersList.style.display = 'none';
+                noOrders.style.display = 'block';
+                return;
+            }
+
+            noOrders.style.display = 'none';
+            ordersList.style.display = 'block';
+
+            ordersList.innerHTML = filteredOrders.map(order => createOrderCard(order)).join('');
+        }
+
+        function createOrderCard(order) {
+            const isUrgent = order.priority === 'urgent' || order.priority === 'very-urgent';
+            const canModify = !['Teslim Edildi', 'İptal Edildi'].includes(order.status);
+
+            return `
+                <div class="order-card ${isUrgent ? 'urgent' : ''}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>Sipariş #${order.id}</h3>
+                            <div class="order-meta">
+                                ${order.createdAt} • ${getPriorityText(order.priority)}
+                            </div>
+                        </div>
+                        
+                        <div class="dealer-info">
+                            <div class="dealer-name">${order.dealerName}</div>
+                            <div class="dealer-discount">İskonto: ${order.discountRate}%</div>
+                        </div>
+                        
+                        <div class="order-amount">
+                            <div class="amount-value">₺${order.finalTotal.toLocaleString('tr-TR')}</div>
+                            <div class="amount-items">${order.totalItems} ürün</div>
+                        </div>
+                        
+                        <div class="status-selector">
+                            <div class="status-current status-${order.status.toLowerCase().replace(/\s+/g, '-').replace('ç', 'c').replace('ş', 's').replace('ı', 'i').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o')}" 
+                                 onclick="toggleStatusDropdown(${order.id})">
+                                ${order.status} ▼
+                            </div>
+                            <div class="status-dropdown" id="dropdown-${order.id}">
+                                ${getStatusOptions(order.status, order.id)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-body">
+                        <div class="order-details">
+                            <div class="detail-section">
+                                <div class="detail-title">📊 Sipariş Bilgileri</div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Sipariş Tarihi:</span>
+                                    <span class="detail-value">${order.createdAt}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Son Güncelleme:</span>
+                                    <span class="detail-value">${order.updatedAt || order.createdAt}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Öncelik:</span>
+                                    <span class="detail-value">${getPriorityText(order.priority)}</span>
+                                </div>
+                                ${order.deliveryDate ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">Talep Edilen Tarih:</span>
+                                    <span class="detail-value">${order.deliveryDate}</span>
+                                </div>` : ''}
+                            </div>
+                            
+                            <div class="detail-section">
+                                <div class="detail-title">💰 Finansal Özet</div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Liste Toplamı:</span>
+                                    <span class="detail-value">₺${order.originalTotal.toLocaleString('tr-TR')}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">İskonto (${order.discountRate}%):</span>
+                                    <span class="detail-value">-₺${(order.originalTotal - order.finalTotal).toLocaleString('tr-TR')}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Net Tutar:</span>
+                                    <span class="detail-value">₺${order.finalTotal.toLocaleString('tr-TR')}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${order.deliveryAddress || order.orderNotes ? `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                            ${order.deliveryAddress ? `<p><strong>📍 Teslimat Adresi:</strong><br>${order.deliveryAddress}</p>` : ''}
+                            ${order.orderNotes ? `<p style="margin-top: 10px;"><strong>📝 Sipariş Notları:</strong><br>${order.orderNotes}</p>` : ''}
+                        </div>` : ''}
+
+                        <div class="items-section">
+                            <div class="items-toggle" onclick="toggleItems(${order.id})">
+                                <span><strong>📦 Sipariş Detayları</strong> (${order.items.length} ürün)</span>
+                                <span id="arrow-${order.id}">▼</span>
+                            </div>
+                            <div class="items-list" id="items-${order.id}">
+                                <div class="items-header">
+                                    <div>Ürün</div>
+                                    <div>Adet</div>
+                                    <div>Birim Fiyat</div>
+                                    <div>Toplam</div>
+                                </div>
+                                ${order.items.map(item => `
+                                    <div class="item-row">
+                                        <div>
+                                            <div class="item-info">${item.productCode}</div>
+                                            <div class="item-detail">${item.brand} - ${item.productType}</div>
+                                        </div>
+                                        <div>${item.quantity}</div>
+                                        <div>₺${item.discountedPrice.toLocaleString('tr-TR')}</div>
+                                        <div>₺${(item.discountedPrice * item.quantity).toLocaleString('tr-TR')}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="order-actions">
+                            ${order.status === 'Beklemede' ? `
+                            <button class="btn btn-approve" onclick="updateOrderStatus(${order.id}, 'Onaylandı')">
+                                ✅ Onayla
+                            </button>
+                            <button class="btn btn-reject" onclick="updateOrderStatus(${order.id}, 'İptal Edildi')">
+                                ❌ İptal Et
+                            </button>` : ''}
+                            <button class="btn btn-details" onclick="showOrderDetails(${order.id})">
+                                👁️ Detaylı Görünüm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPriorityText(priority) {
+            switch(priority) {
+                case 'very-urgent': return '🔥 Çok Acil';
+                case 'urgent': return '⚡ Acil';
+                case 'normal': return '📋 Normal';
+                default: return '📋 Normal';
+            }
+        }
+
+        function getStatusOptions(currentStatus, orderId) {
+            const allStatuses = [
+                { key: 'Beklemede', label: 'Beklemede' },
+                { key: 'Onaylandı', label: 'Onaylandı' }, 
+                { key: 'Hazırlanıyor', label: 'Hazırlanıyor' },
+                { key: 'Kargoda', label: 'Kargoda' },
+                { key: 'Teslim Edildi', label: 'Teslim Edildi' },
+                { key: 'İptal Edildi', label: 'İptal Edildi' }
+            ];
+
+            return allStatuses
+                .filter(status => status.key !== currentStatus)
+                .map(status => `
+                    <div class="status-option" onclick="updateOrderStatus(${orderId}, '${status.key}')">
+                        ${status.label}
+                    </div>
+                `).join('');
+        }
+
+        function toggleStatusDropdown(orderId) {
+            const dropdown = document.getElementById(`dropdown-${orderId}`);
+            
+            // Diğer açık dropdown'ları kapat
+            document.querySelectorAll('.status-dropdown').forEach(d => {
+                if (d.id !== `dropdown-${orderId}`) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            dropdown.classList.toggle('show');
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            if (confirm(`Sipariş durumunu "${newStatus}" olarak değiştirmek istediğinizden emin misiniz?`)) {
+                // Siparişi güncelle
+                const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const orderIndex = allOrders.findIndex(o => o.id === orderId);
+                
+                if (orderIndex !== -1) {
+                    const oldStatus = allOrders[orderIndex].status;
+                    allOrders[orderIndex].status = newStatus;
+                    allOrders[orderIndex].updatedAt = new Date().toLocaleString('tr-TR');
+                    localStorage.setItem('orders', JSON.stringify(allOrders));
+                    
+                    // Aktivite kaydet
+                    addActivity('Sipariş Durumu Güncellendi', 
+                        `#${orderId} numaralı sipariş durumu "${oldStatus}" → "${newStatus}" olarak değiştirildi`);
+                    
+                    // Bildirimi göster
+                    showNotification(`Sipariş #${orderId} durumu "${newStatus}" olarak güncellendi`, 'success');
+                    
+                    // Sayfayı yenile
+                    loadOrders();
+                }
+            }
+            
+            // Dropdown'ı kapat
+            document.getElementById(`dropdown-${orderId}`).classList.remove('show');
+        }
+
+        function toggleItems(orderId) {
+            const itemsList = document.getElementById(`items-${orderId}`);
+            const arrow = document.getElementById(`arrow-${orderId}`);
+            
+            if (itemsList.classList.contains('expanded')) {
+                itemsList.classList.remove('expanded');
+                arrow.textContent = '▼';
+            } else {
+                itemsList.classList.add('expanded');
+                arrow.textContent = '▲';
+            }
+        }
+
+        function updateStats() {
+            const pendingCount = orders.filter(o => o.status === 'Beklemede').length;
+            const approvedCount = orders.filter(o => o.status === 'Onaylandı').length;
+            const preparingCount = orders.filter(o => o.status === 'Hazırlanıyor').length;
+            const shippedCount = orders.filter(o => o.status === 'Kargoda').length;
+
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('approvedCount').textContent = approvedCount;
+            document.getElementById('preparingCount').textContent = preparingCount;
+            document.getElementById('shippedCount').textContent = shippedCount;
+        }
+
+        function showOrderDetails(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const itemsText = order.items.map(item => 
+                `• ${item.productCode} - ${item.quantity} adet - ₺${(item.discountedPrice * item.quantity).toLocaleString('tr-TR')}`
+            ).join('\n');
+
+            alert(`
+📋 Detaylı Sipariş Bilgileri
+
+🆔 Sipariş No: #${order.id}
+🏪 Bayi: ${order.dealerName}
+📅 Sipariş Tarihi: ${order.createdAt}
+📊 Durum: ${order.status}
+⚡ Öncelik: ${getPriorityText(order.priority)}
+
+📦 Sipariş Edilen Ürünler:
+${itemsText}
+
+💰 Finansal Özet:
+• Liste Toplamı: ₺${order.originalTotal.toLocaleString('tr-TR')}
+• İskonto Oranı: ${order.discountRate}%
+• İskonto Tutarı: ₺${(order.originalTotal - order.finalTotal).toLocaleString('tr-TR')}
+• Net Ödenecek: ₺${order.finalTotal.toLocaleString('tr-TR')}
+
+📍 Teslimat Bilgileri:
+${order.deliveryAddress || 'Adres belirtilmemiş'}
+${order.deliveryDate ? `📅 Talep Edilen Tarih: ${order.deliveryDate}` : ''}
+
+${order.orderNotes ? `📝 Özel Notlar:\n${order.orderNotes}` : ''}
+
+📈 Takip Bilgileri:
+• Oluşturulma: ${order.createdAt}
+• Son Günceleme: ${order.updatedAt || order.createdAt}
+            `);
+        }
+
+        function exportOrders() {
+            if (filteredOrders.length === 0) {
+                showNotification('Dışa aktarılacak sipariş bulunamadı', 'error');
+                return;
+            }
+
+            // CSV formatında sipariş verilerini hazırla
+            const csvData = [
+                ['Sipariş No', 'Bayi Adı', 'Durum', 'Öncelik', 'Toplam Ürün', 'Net Tutar', 'Sipariş Tarihi', 'Son Güncelleme'],
+                ...filteredOrders.map(order => [
+                    `#${order.id}`,
+                    order.dealerName,
+                    order.status,
+                    getPriorityText(order.priority),
+                    order.totalItems,
+                    `₺${order.finalTotal.toLocaleString('tr-TR')}`,
+                    order.createdAt,
+                    order.updatedAt || order.createdAt
+                ])
+            ];
+
+            // CSV'yi string'e dönüştür
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            
+            // Dosyayı indir
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `siparisler_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification(`${filteredOrders.length} sipariş Excel'e aktarıldı`, 'success');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function addActivity(title, description) {
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            activities.push({
+                title: title,
+                description: description,
+                time: new Date().toLocaleString('tr-TR')
+            });
+            
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        // Klavye kısayolları
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                loadOrders();
+            }
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchBox').focus();
+            }
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportOrders();
+            }
+        });
+
+        // Otomatik yenileme (2 dakikada bir)
+        setInterval(() => {
+            if (!document.hidden) {
+                loadOrders();
+            }
+        }, 2 * 60 * 1000);
+
+        // Sayfa görünür olduğunda yenile
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadOrders();
+            }
+        });
+
+        // Ses bildirimi için (yeni sipariş geldiğinde)
+        function checkForNewOrders() {
+            const currentOrderCount = orders.length;
+            const newOrderCount = JSON.parse(localStorage.getItem('orders') || '[]').length;
+            
+            if (newOrderCount > currentOrderCount) {
+                showNotification(`${newOrderCount - currentOrderCount} yeni sipariş geldi!`, 'success');
+                // Ses çalma (opsiyonel)
+                // new Audio('notification.mp3').play();
+            }
+        }
+
+        // Her 30 saniyede bir yeni sipariş kontrolü
+        setInterval(checkForNewOrders, 30000);
+    </script>
+</body>
+</html>
