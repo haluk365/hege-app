@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayi Paneli - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header .dealer-info {
+            opacity: 0.9;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .discount-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .last-login {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #27ae60;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .menu-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .menu-card:hover::before {
+            left: 100%;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            border-color: #27ae60;
+            box-shadow: 0 15px 35px rgba(39, 174, 96, 0.2);
+        }
+
+        .price-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .order-card {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .track-card {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .menu-icon {
+            font-size: 3.2em;
+            margin-bottom: 18px;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-description {
+            opacity: 0.9;
+            line-height: 1.5;
+            font-size: 0.95em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 8px;
+        }
+
+        .recent-orders {
+            list-style: none;
+        }
+
+        .recent-orders li {
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .recent-orders li:last-child {
+            border-bottom: none;
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-date {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+
+        .order-amount {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .order-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        .status-approved {
+            background: #eafaf1;
+            color: #27ae60;
+        }
+
+        .status-shipped {
+            background: #ebf3fd;
+            color: #3498db;
+        }
+
+        .announcements-list {
+            list-style: none;
+        }
+
+        .announcements-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .announcements-list li:last-child {
+            border-bottom: none;
+        }
+
+        .announcement-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .announcement-text {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        .announcement-date {
+            font-size: 0.8em;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #dff0d8, #c3e6cb);
+            color: #155724;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .welcome-message h4 {
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-section {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                text-align: center;
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                padding: 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .menu-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animasyonlar */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Yükleme animasyonu */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>🏪 <span id="dealerName">Bayi Paneli</span></h1>
+                <div class="dealer-info">
+                    <span>Hoş geldiniz, <strong id="contactPerson">Kullanıcı</strong></span>
+                    <span class="discount-badge">İskonto: <span id="discountRate">0</span>%</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="last-login">
+                    <small>Son giriş: <span id="lastLogin">-</span></small>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Çıkış</button>
+            </div>
+        </div>
+
+        <div class="welcome-message fade-in">
+            <h4>🎉 Sisteme Hoş Geldiniz!</h4>
+            <p>Fiyat listelerinizi görüntüleyebilir, sipariş verebilir ve mevcut siparişlerinizi takip edebilirsiniz.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+                <span class="stat-icon">📦</span>
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">Mevcut Ürün</div>
+            </div>
+            <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+                <span class="stat-icon">🛒</span>
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Toplam Siparişim</div>
+            </div>
+            <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+                <span class="stat-icon">⏳</span>
+                <div class="stat-number" id="pendingOrders">0</div>
+                <div class="stat-label">Bekleyen Sipariş</div>
+            </div>
+            <div class="stat-card fade-in" style="animation-delay: 0.4s;">
+                <span class="stat-icon">💰</span>
+                <div class="stat-number" id="totalAmount">₺0</div>
+                <div class="stat-label">Toplam Alışveriş</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="menu-section">
+                <a href="fiyat-listesi.html" class="menu-card price-card fade-in" style="animation-delay: 0.5s;">
+                    <span class="menu-icon">💰</span>
+                    <div class="menu-title">Fiyat Listesi</div>
+                    <div class="menu-description">
+                        Özel iskonto oranınızla güncel fiyat listesini görüntüleyin ve ürün detaylarını inceleyin.
+                    </div>
+                </a>
+
+                <a href="siparis-ver.html" class="menu-card order-card fade-in" style="animation-delay: 0.6s;">
+                    <span class="menu-icon">🛒</span>
+                    <div class="menu-title">Sipariş Ver</div>
+                    <div class="menu-description">
+                        Hızlı ve kolay sipariş oluşturun. Sepetinizi yönetin ve siparişinizi tamamlayın.
+                    </div>
+                </a>
+
+                <a href="siparislerim.html" class="menu-card track-card fade-in" style="animation-delay: 0.7s;">
+                    <span class="menu-icon">📋</span>
+                    <div class="menu-title">Siparişlerim</div>
+                    <div class="menu-description">
+                        Mevcut siparişlerinizi takip edin, durumlarını görüntüleyin ve geçmiş siparişleri inceleyin.
+                    </div>
+                </a>
+
+                <a href="profil.html" class="menu-card profile-card fade-in" style="animation-delay: 0.8s;">
+                    <span class="menu-icon">👤</span>
+                    <div class="menu-title">Profil & Ayarlar</div>
+                    <div class="menu-description">
+                        Hesap bilgilerinizi görüntüleyin, şifrenizi değiştirin ve tercihlerinizi yönetin.
+                    </div>
+                </a>
+            </div>
+
+            <div class="sidebar">
+                <div class="info-card fade-in" style="animation-delay: 0.9s;">
+                    <h3>📋 Son Siparişlerim</h3>
+                    <ul class="recent-orders" id="recentOrders">
+                        <li style="text-align: center; color: #7f8c8d; padding: 20px;">
+                            Henüz sipariş bulunmuyor
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="info-card fade-in" style="animation-delay: 1s;">
+                    <h3>📢 Duyurular</h3>
+                    <ul class="announcements-list">
+                        <li>
+                            <div class="announcement-title">Sistem Güncellemesi</div>
+                            <div class="announcement-text">Bayi yönetim sistemi yenilendi. Yeni özellikler eklendi.</div>
+                            <div class="announcement-date">2 gün önce</div>
+                        </li>
+                        <li>
+                            <div class="announcement-title">Kampanya Duyurusu</div>
+                            <div class="announcement-text">Yeni ürünlerde özel iskonto fırsatları sizi bekliyor.</div>
+                            <div class="announcement-date">1 hafta önce</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadDealerInfo();
+            loadStats();
+            loadRecentOrders();
+        });
+
+        function checkLoginStatus() {
+            const currentDealer = sessionStorage.getItem('currentDealer');
+            if (!currentDealer) {
+                alert('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+                window.location.href = 'index.html';
+                return;
+            }
+        }
+
+        function loadDealerInfo() {
+            const currentDealer = JSON.parse(sessionStorage.getItem('currentDealer'));
+            if (currentDealer) {
+                document.getElementById('dealerName').textContent = currentDealer.dealerName;
+                document.getElementById('contactPerson').textContent = currentDealer.contactPerson;
+                document.getElementById('discountRate').textContent = currentDealer.discountRate;
+                document.getElementById('lastLogin').textContent = currentDealer.lastLogin || 'İlk giriş';
+                
+                // Başlığı güncelle
+                document.title = `${currentDealer.dealerName} - Bayi Paneli`;
+            }
+        }
+
+        function loadStats() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const currentDealer = JSON.parse(sessionStorage.getItem('currentDealer'));
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            // Mevcut ürün sayısı (stokta olanlar)
+            const availableProducts = products.filter(p => p.stock === 'Stokta Var').length;
+            document.getElementById('totalProducts').textContent = availableProducts;
+            
+            if (currentDealer) {
+                // Bu bayinin siparişleri
+                const dealerOrders = orders.filter(o => o.dealerId === currentDealer.id);
+                const pendingOrders = dealerOrders.filter(o => 
+                    o.status === 'Beklemede' || o.status === 'Hazırlanıyor'
+                ).length;
+                const totalAmount = dealerOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+                
+                document.getElementById('totalOrders').textContent = dealerOrders.length;
+                document.getElementById('pendingOrders').textContent = pendingOrders;
+                document.getElementById('totalAmount').textContent = `₺${totalAmount.toLocaleString('tr-TR')}`;
+            }
+        }
+
+        function loadRecentOrders() {
+            const currentDealer = JSON.parse(sessionStorage.getItem('currentDealer'));
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const recentOrdersList = document.getElementById('recentOrders');
+            
+            if (!currentDealer) return;
+            
+            // Bu bayinin son 5 siparişi
+            const dealerOrders = orders
+                .filter(o => o.dealerId === currentDealer.id)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5);
+            
+            if (dealerOrders.length === 0) {
+                recentOrdersList.innerHTML = `
+                    <li style="text-align: center; color: #7f8c8d; padding: 20px;">
+                        Henüz sipariş bulunmuyor
+                    </li>
+                `;
+                return;
+            }
+            
+            recentOrdersList.innerHTML = dealerOrders.map(order => `
+                <li>
+                    <div class="order-info">
+                        <div>Sipariş #${order.id}</div>
+                        <div class="order-date">${order.createdAt}</div>
+                    </div>
+                    <div class="order-amount">₺${(order.totalAmount || 0).toLocaleString('tr-TR')}</div>
+                    <div class="order-status ${getStatusClass(order.status)}">${order.status}</div>
+                </li>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Beklemede': return 'status-pending';
+                case 'Onaylandı': return 'status-approved';
+                case 'Kargoda': return 'status-shipped';
+                default: return 'status-pending';
+            }
+        }
+
+        function logout() {
+            if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+                // Oturum bilgilerini temizle
+                sessionStorage.removeItem('currentDealer');
+                
+                // Aktivite kaydet
+                const currentDealer = JSON.parse(sessionStorage.getItem('currentDealer') || '{}');
+                if (currentDealer.dealerName) {
+                    addActivity('Bayi Çıkış Yaptı', `${currentDealer.dealerName} sistemden çıkış yaptı`);
+                }
+                
+                // Ana sayfaya yönlendir
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Aktivite ekleme fonksiyonu
+        function addActivity(title, description) {
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            activities.push({
+                title: title,
+                description: description,
+                time: new Date().toLocaleString('tr-TR')
+            });
+            
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        // Otomatik çıkış (30 dakika hareketsizlik)
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                alert('Güvenlik nedeniyle oturumunuz sonlandırıldı.');
+                logout();
+            }, 30 * 60 * 1000); // 30 dakika
+        }
+
+        // Kullanıcı aktivitesini izle
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        resetInactivityTimer();
+
+        // Sayfa görünür olduğunda verileri yenile
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadStats();
+                loadRecentOrders();
+            }
+        });
+
+        // Hoş geldin mesajını 5 saniye sonra gizle
+        setTimeout(() => {
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.style.transition = 'all 0.5s ease';
+                welcomeMsg.style.opacity = '0';
+                welcomeMsg.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    welcomeMsg.style.display = 'none';
+                }, 500);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
