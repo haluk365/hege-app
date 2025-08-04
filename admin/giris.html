@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Girişi - Bayi Yönetim Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .login-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-header .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-badge {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 15px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .login-form {
+            padding: 40px 30px;
+            background: #f8f9fa;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:valid {
+            border-color: #27ae60;
+        }
+
+        .form-group .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #e74c3c;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn.loading {
+            color: transparent;
+        }
+
+        .login-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2c3e50;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #2c3e50;
+        }
+
+        .error-message {
+            background: #fdf2f2;
+            color: #e74c3c;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+            font-size: 14px;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success-message {
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+            font-size: 14px;
+            display: none;
+        }
+
+        .first-login-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .first-login-info h4 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .first-login-info code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .security-features {
+            margin-top: 25px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .security-features h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .security-features ul {
+            list-style: none;
+            color: #2c3e50;
+            font-size: 13px;
+        }
+
+        .security-features li {
+            margin-bottom: 5px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .security-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 10px;
+                max-width: none;
+            }
+            
+            .login-header,
+            .login-form {
+                padding: 30px 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <span class="icon">👨‍💼</span>
+            <h1>Admin Girişi</h1>
+            <p>Sistem yönetimi için güvenli giriş</p>
+            <div class="admin-badge">🔒 Yönetici Erişimi</div>
+        </div>
+
+        <div class="login-form">
+            <div class="first-login-info">
+                <h4>🚀 İlk Giriş Bilgileri:</h4>
+                <p><strong>Kullanıcı Adı:</strong> <code>admin</code></p>
+                <p><strong>Şifre:</strong> <code>admin123</code></p>
+                <p style="margin-top: 8px; font-size: 12px;">⚠️ Giriş yaptıktan sonra şifrenizi değiştirmeniz önerilir.</p>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <strong>Hata:</strong> <span id="errorText"></span>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <strong>Başarılı:</strong> Admin paneline yönlendiriliyorsunuz...
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                    <span class="input-icon">👤</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        Beni hatırla
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    🔐 Admin Paneline Giriş Yap
+                </button>
+            </form>
+
+            <div class="security-features">
+                <h4>🛡️ Güvenlik Özellikleri</h4>
+                <ul>
+                    <li>Şifreli oturum yönetimi</li>
+                    <li>Otomatik çıkış (60 dakika)</li>
+                    <li>Başarısız giriş takibi</li>
+                    <li>Şifre değiştirme seçeneği</li>
+                </ul>
+            </div>
+
+            <div class="back-link">
+                <a href="../index.html">← Ana sayfaya dön</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            // Zaten giriş yapmış mı kontrol et
+            checkExistingSession();
+            
+            // Hatırlanan kullanıcıyı kontrol et
+            checkRememberedUser();
+            
+            // Form submit olayı
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Enter tuşu ile giriş
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && (document.activeElement.id === 'username' || document.activeElement.id === 'password')) {
+                    e.preventDefault();
+                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // İlk kullanıcı adını otomatik doldur
+            document.getElementById('username').value = 'admin';
+        });
+
+        function checkExistingSession() {
+            const adminSession = sessionStorage.getItem('adminSession');
+            if (adminSession) {
+                const session = JSON.parse(adminSession);
+                const now = new Date().getTime();
+                
+                // Oturum hala geçerli mi?
+                if (now < session.expiresAt) {
+                    window.location.href = 'index.html';
+                } else {
+                    // Süresi dolmuş oturumu temizle
+                    sessionStorage.removeItem('adminSession');
+                }
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Basit doğrulama
+            if (!username || !password) {
+                showError('Lütfen kullanıcı adı ve şifrenizi girin');
+                return;
+            }
+            
+            // Giriş butonu animasyonu
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            
+            // Simüle edilmiş giriş kontrolü
+            setTimeout(() => {
+                if (validateAdminLogin(username, password)) {
+                    // Başarılı giriş
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedAdminUser', username);
+                    }
+                    
+                    // Oturum bilgisini kaydet
+                    const sessionData = {
+                        username: username,
+                        loginTime: new Date().toLocaleString('tr-TR'),
+                        expiresAt: new Date().getTime() + (60 * 60 * 1000) // 60 dakika
+                    };
+                    sessionStorage.setItem('adminSession', JSON.stringify(sessionData));
+                    
+                    // Aktivite kaydet
+                    addActivity('Admin Girişi', `${username} admin paneline giriş yaptı`);
+                    
+                    showSuccess('Giriş başarılı! Admin paneline yönlendiriliyorsunuz...');
+                    
+                    // Admin paneline yönlendir
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                    
+                } else {
+                    // Hatalı giriş
+                    showError('Kullanıcı adı veya şifre hatalı');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    
+                    // Başarısız giriş kaydı
+                    addFailedLoginAttempt(username);
+                }
+            }, 1000);
+        }
+
+        function validateAdminLogin(username, password) {
+            // Admin bilgilerini localStorage'dan al (şifre değiştirilmişse)
+            const adminCredentials = JSON.parse(localStorage.getItem('adminCredentials') || '{"username": "admin", "password": "admin123"}');
+            
+            return username === adminCredentials.username && password === adminCredentials.password;
+        }
+
+        function addFailedLoginAttempt(username) {
+            const attempts = JSON.parse(localStorage.getItem('failedLoginAttempts') || '[]');
+            attempts.push({
+                username: username,
+                timestamp: new Date().toISOString(),
+                ip: 'localhost' // Gerçek uygulamada IP alınabilir
+            });
+            
+            // Son 10 başarısız girişi sakla
+            if (attempts.length > 10) {
+                attempts.splice(0, attempts.length - 10);
+            }
+            
+            localStorage.setItem('failedLoginAttempts', JSON.stringify(attempts));
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const successDiv = document.getElementById('successMessage');
+            
+            successDiv.style.display = 'none';
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Formu salla
+            const container = document.querySelector('.login-container');
+            container.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                container.style.animation = '';
+            }, 500);
+            
+            // 5 saniye sonra gizle
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            errorDiv.style.display = 'none';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function checkRememberedUser() {
+            const rememberedUser = localStorage.getItem('rememberedAdminUser');
+            if (rememberedUser) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('rememberMe').checked = true;
+                document.getElementById('password').focus();
+            }
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function addActivity(title, description) {
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            activities.push({
+                title: title,
+                description: description,
+                time: new Date().toLocaleString('tr-TR')
+            });
+            
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        // Güvenlik: Geliştirici araçlarını algıla
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                console.warn('🔒 Admin sistemi güvenlik altında. Yetkisiz erişim girişimleri kayıt altına alınır.');
+            }
+        });
+
+        // Sayfa odağı kaybettiğinde güvenlik uyarısı
+        let isLoggedIn = false;
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !isLoggedIn) {
+                console.log('🔒 Güvenlik: Admin giriş sayfası arka plana alındı');
+            }
+        });
+
+        // Caps Lock uyarısı
+        document.getElementById('password').addEventListener('keyup', function(e) {
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                if (!document.getElementById('capsWarning')) {
+                    const warning = document.createElement('small');
+                    warning.id = 'capsWarning';
+                    warning.style.color = '#e74c3c';
+                    warning.style.display = 'block';
+                    warning.style.marginTop = '5px';
+                    warning.textContent = '⚠️ Caps Lock açık';
+                    e.target.parentElement.appendChild(warning);
+                }
+            } else {
+                const warning = document.getElementById('capsWarning');
+                if (warning) {
+                    warning.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
