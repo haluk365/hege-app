@@ -4,7 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Paneli - Raporlar</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js">
+
+// Admin oturum kontrolü - TÜM ADMIN SAYFALARINDA KULLANILACAK
+function checkAdminSession() {
+    const adminSession = sessionStorage.getItem('adminSession');
+    if (!adminSession) {
+        alert('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+        window.location.href = 'giris.html';
+        return false;
+    }
+    
+    const session = JSON.parse(adminSession);
+    const now = new Date().getTime();
+    
+    if (now >= session.expiresAt) {
+        alert('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+        sessionStorage.removeItem('adminSession');
+        window.location.href = 'giris.html';
+        return false;
+    }
+    
+    return true;
+}
+
+// Sayfa yüklendiğinde oturum kontrolü yap
+document.addEventListener('DOMContentLoaded', function() {
+    checkAdminSession();
+    // ... diğer kodlar buraya gelecek
+});
+
+
+        
+    </script>
     <style>
         * {
             margin: 0;
